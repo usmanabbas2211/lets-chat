@@ -7,10 +7,11 @@ const cors = require('cors')
 const http = require('http')
 const app = express()
 const server = http.createServer(app)
+const { faker } = require('@faker-js/faker')
 const { Server } = require('socket.io')
 const io = new Server(server, {
     cors: {
-        origin: 'http://localhost:3000',
+        origin: ['http://localhost:3000', process.env.FE_URL],
     },
 })
 //routes
@@ -33,19 +34,36 @@ connectMongo()
 app.get('/', (req, res) => {
     res.send('this is success')
 })
+
+const connectedUsers = new Map()
+
 io.on('connection', (socket) => {
-    console.log('a user connected', socket.id)
-    socket.join('room', () => {
-        console.log('joined class room')
+    connectedUsers.set(socket.id, {
+        id: socket.id,
+        name: faker.internet.userName(),
+        img: faker.image.avatar(),
+        time: new Date().toDateString(),
+    })
+    io.emit('connectedUsers', Array.from(connectedUsers.values()))
+    socket.on('join', (roomId) => {
+        socket.join(roomId)
     })
 
+    socket.on('message', (roomId, message) => {
+        io.to(roomId).emit('message', message, roomId)
+    })
+
+    socket.join('room', () => {})
+
     socket.on('disconnect', (reason) => {
-        console.log(reason)
+        connectedUsers.delete(socket.id)
+        io.emit('connectedUsers', Array.from(connectedUsers.keys()))
     })
-    socket.on('message', (arg) => {
-        console.log(arg) // world
-        socket.broadcast.emit('got-message', arg)
-    })
+
+    // socket.on('message', (arg) => {
+    //     console.log(arg, 'from', socket.id) // world
+    //     socket.broadcast.emit('got-message', arg)
+    // })
 })
 
 // setInterval(() => {
