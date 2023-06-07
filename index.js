@@ -11,7 +11,7 @@ const { faker } = require('@faker-js/faker')
 const { Server } = require('socket.io')
 const io = new Server(server, {
     cors: {
-        origin: '*',
+        origin: '*:*',
     },
 })
 //routes
