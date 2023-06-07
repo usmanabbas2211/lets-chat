@@ -66,6 +66,10 @@ io.on('connection', (socket) => {
         io.emit('connectedUsers', Array.from(connectedUsers.keys()))
     })
 
+    socket.on('connect_error', (err) => {
+        console.log(`connect_error due to ${err.message}`)
+    })
+
     // socket.on('message', (arg) => {
     //     console.log(arg, 'from', socket.id) // world
     //     socket.broadcast.emit('got-message', arg)
