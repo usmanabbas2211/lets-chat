@@ -9,11 +9,7 @@ const app = express()
 const server = http.createServer(app)
 const { faker } = require('@faker-js/faker')
 const { Server } = require('socket.io')
-const io = new Server(server, {
-    cors: {
-        origin: '*:*',
-    },
-})
+const io = new Server(server, { origins: '*:*' })
 //routes
 
 const { server_error } = require('./helpers/responseHelper')
