@@ -9,7 +9,17 @@ const app = express()
 const server = http.createServer(app)
 const { faker } = require('@faker-js/faker')
 const { Server } = require('socket.io')
-const io = new Server(server, { origins: '*:*' })
+const io = new Server(server, {
+    handlePreflightRequest: (req, res) => {
+        const headers = {
+            'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+            'Access-Control-Allow-Origin': req.headers.origin, //or the specific origin you want to give access to,
+            'Access-Control-Allow-Credentials': true,
+        }
+        res.writeHead(200, headers)
+        res.end()
+    },
+})
 //routes
 
 const { server_error } = require('./helpers/responseHelper')
